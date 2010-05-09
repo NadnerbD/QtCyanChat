@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>cyanchat32.png</file>
+        <file>cyanchat32_notify.png</file>
+        <file>HtmlHeader.html</file>
+    </qresource>
+</RCC>
