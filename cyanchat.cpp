@@ -300,7 +300,7 @@ void CyanChat::tabChanged(int num) {
 	ui->chatBox->setFocus();
     else
 	((PMWidget*)ui->tabWidget->currentWidget())->pmBox->setFocus();
-    ((UsableTabWidget*)ui->tabWidget)->tabBar()->setTabTextColor(num, QColor(Qt::black));
+    ((UsableTabWidget*)ui->tabWidget)->tabBar()->setTabTextColor(num, palette().color(QPalette::ButtonText));
 }
 
 void CyanChat::passCmdLineOptions(int len, char** args) {
