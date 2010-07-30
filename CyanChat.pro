@@ -7,10 +7,12 @@ SOURCES += main.cpp \
     cyanchat.cpp \
     cyanchat_user.cpp \
     pmwidget.cpp \
-    options.cpp
+    options.cpp \
+    useriptable.cpp
 HEADERS += cyanchat.h \
     pmwidget.h \
-    options.h
+    options.h \
+    useriptable.h
 FORMS += cyanchat.ui \
     options.ui \
     pmwidget.ui

@@ -14,7 +14,7 @@ QString CyanChat::verString = "qt_cc " + QString(CC_VERSION) + " (NadCC) Mac OSX
 #endif
 
 
-CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), settings("cyan.com", "CyanChat"), ui(new Ui::CyanChat), optionsDialog(NULL) {
+CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), settings("cyan.com", "CyanChat"), ui(new Ui::CyanChat), optionsDialog(NULL), userIPTable("UserIPTable.log") {
     ui->setupUi(this);
     // remove the dummy pm tab
     ui->tabWidget->removeTab(1);
@@ -60,7 +60,7 @@ CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), settings("cyan.com", 
         trayIcon->show();
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     connect(this, SIGNAL(hideWindowSignal()), this, SLOT(hideWindowSlot()), Qt::QueuedConnection);
-    // create the userlist context menu
+    // create the userlist actions
     QAction* PMAction = new QAction("&PM", this);
     connect(PMAction, SIGNAL(triggered()), this, SLOT(openPmSlot()));
     PMAction->setShortcut(QKeySequence("Ctrl+P"));
@@ -73,11 +73,14 @@ CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), settings("cyan.com", 
     QAction* requestVersionAction = new QAction("Request &Version", this);
     connect(requestVersionAction, SIGNAL(triggered()), this, SLOT(requestVersionSlot()));
     requestVersionAction->setShortcut(QKeySequence("Ctrl+V"));
-    ui->userList->setContextMenuPolicy(Qt::ActionsContextMenu);
     ui->userList->addAction(PMAction);
     ui->userList->addAction(ignoreAction);
     ui->userList->addAction(showAddressAction);
     ui->userList->addAction(requestVersionAction);
+    // set up the userlist context menu, the purpose of this is to
+    // prevent the menu from showing when no item is selected
+    ui->userList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->userList, SIGNAL(customContextMenuRequested(QPoint)), SLOT(showUserListContextMenu(QPoint)));
     // prepare the connection
     sock = new QTcpSocket(this);
     connect(sock, SIGNAL(readyRead()), this, SLOT(recvData()));
@@ -176,15 +179,15 @@ void CyanChat::writeSettings() {
     settings.endGroup();
 }
 
-void CyanChat::saveSplitterState(int a, int b) {
+void CyanChat::saveSplitterState(int, int) {
     settings.setValue("QtCyanChat/SplitterState", ui->splitter->saveState());
 }
 
-void CyanChat::moveEvent(QMoveEvent* event) {
+void CyanChat::moveEvent(QMoveEvent*) {
     settings.setValue("QtCyanChat/Geometry", saveGeometry());
 }
 
-void CyanChat::resizeEvent(QResizeEvent* event) {
+void CyanChat::resizeEvent(QResizeEvent*) {
     settings.setValue("QtCyanChat/Geometry", saveGeometry());
 }
 
@@ -213,7 +216,17 @@ void CyanChat::showOptions() {
     }
 }
 
-void CyanChat::optionsFinished(int value) {
+void CyanChat::showUserListContextMenu(QPoint point) {
+    QListWidgetItem* item = ui->userList->itemAt(point);
+    if(!item)
+        return;
+    // generate the context menu, using the same actions that the userList has
+    QMenu* menu = new QMenu(this);
+    menu->addActions(ui->userList->actions());
+    menu->popup(ui->userList->mapToGlobal(point));
+}
+
+void CyanChat::optionsFinished(int) {
     optionsDialog = NULL;
 }
 
@@ -476,7 +489,11 @@ void CyanChat::recvData() {
 		    User user = User(args[0]);
 		    if(!user.isIgnored(ignoreList)) {
 			QListWidgetItem *item = new QListWidgetItem(ui->userList);
-			item->setText(user.name);
+			QString realName = userIPTable.getRealName(user.addr, user.name);
+			if(realName == user.name)
+				item->setText(user.name);
+			else
+				item->setText(user.name + ", (" + realName + ")");
 			item->setForeground(QBrush(user.color()));
 			item->setToolTip(user.toString());
 		    }

@@ -1,7 +1,7 @@
 #ifndef CYANCHAT_H
 #define CYANCHAT_H
 
-#define CC_VERSION "v1.9.1"
+#define CC_VERSION "v1.9.2"
 
 #include <QtGui/QMainWindow>
 #include <QSystemTrayIcon>
@@ -14,6 +14,8 @@
 #include <QTimer>
 #include <QTime>
 #include <QFile>
+
+#include "useriptable.h"
 
 namespace Ui {
     class CyanChat;
@@ -129,6 +131,7 @@ public slots:
     void optionsFinished(int value);
     void setTrayVis(bool vis);
     void saveSplitterState(int, int);
+    void showUserListContextMenu(QPoint);
 
 signals:
     void hideWindowSignal();
@@ -144,6 +147,7 @@ private:
     QSystemTrayIcon* trayIcon;
     QFile HTMLLogFile;
     QFile plainLogFile;
+    UserIPTable userIPTable;
 
     void sendLine(QString line);
     void changeEvent(QEvent* event);
