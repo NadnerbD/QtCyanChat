@@ -73,10 +73,18 @@ CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), settings("cyan.com", 
     QAction* requestVersionAction = new QAction("Request &Version", this);
     connect(requestVersionAction, SIGNAL(triggered()), this, SLOT(requestVersionSlot()));
     requestVersionAction->setShortcut(QKeySequence("Ctrl+V"));
+    QAction* showNames = new QAction("&Show Names", this);
+    connect(showNames, SIGNAL(triggered()), this, SLOT(showNamesSlot()));
+    showNames->setShortcut(QKeySequence("Ctrl+S"));
+    QAction* setOrigName = new QAction("Set &Original Name", this);
+    connect(setOrigName, SIGNAL(triggered()), this, SLOT(setOrigNameSlot()));
+    setOrigName->setShortcut(QKeySequence("Ctrl+O"));
     ui->userList->addAction(PMAction);
     ui->userList->addAction(ignoreAction);
     ui->userList->addAction(showAddressAction);
     ui->userList->addAction(requestVersionAction);
+    ui->userList->addAction(showNames);
+    ui->userList->addAction(setOrigName);
     // set up the userlist context menu, the purpose of this is to
     // prevent the menu from showing when no item is selected
     ui->userList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -139,6 +147,7 @@ void CyanChat::readSettings() {
     plainLog = settings.value("PlainLog", "CCChatLog.log").toString();
     HTMLLog = settings.value("HTMLLog", "CCChatLog.html").toString();
     fontSize = settings.value("FontSize", 0).toInt();
+    showOrigNames = settings.value("ShowOrigNames", false).toBool();
     if(settings.contains("SplitterState")) {
         ui->splitter->restoreState(settings.value("SplitterState").toByteArray());
     }else{
@@ -175,6 +184,7 @@ void CyanChat::writeSettings() {
     settings.setValue("PlainLog", plainLog);
     settings.setValue("HTMLLog", HTMLLog);
     settings.setValue("FontSize", fontSize);
+    settings.setValue("ShowOrigNames", showOrigNames);
     // QtCC Specific settings
     settings.endGroup();
 }
@@ -277,6 +287,43 @@ void CyanChat::requestVersionSlot() {
     QList<QListWidgetItem*> list = ui->userList->selectedItems();
     if(!list.isEmpty())
 	pm(User(list.first()->toolTip()), "!version");
+}
+
+void CyanChat::showNamesSlot() {
+    // this is such a hack. -_-
+    QList<QListWidgetItem*> list = ui->userList->selectedItems();
+    if(!list.isEmpty()) {
+	User user = User(list.first()->toolTip());
+	QStringList namesList = userIPTable.getAllNames(user.addr);
+	addChatLine(ui->mainText, User("3ChatClient"), Msg("[" + user.name + "] from address " + user.addr + " has used the names: " + namesList.join(", "), 1));
+    }
+}
+
+void CyanChat::setOrigNameSlot() {
+    // this is such a hack. -_-
+    QList<QListWidgetItem*> list = ui->userList->selectedItems();
+    if(!list.isEmpty()) {
+	User user = User(list.first()->toolTip());
+        userIPTable.setRealName(user.addr, user.name);
+        refreshUserListSlot();
+    }
+}
+
+void CyanChat::refreshUserListSlot() {
+    ui->userList->clear();
+    ui->userList->setSortingEnabled(false);
+    foreach(User user, userList) {
+        if(!user.isIgnored(ignoreList)) {
+            QListWidgetItem *item = new QListWidgetItem(ui->userList);
+            QString realName = userIPTable.getRealName(user.addr, user.name);
+            if(realName != user.name && showOrigNames)
+                item->setText(user.name + ", (" + realName + ")");
+            else
+                item->setText(user.name);
+            item->setForeground(QBrush(user.color()));
+            item->setToolTip(user.toString());
+        }
+    }
 }
 
 void CyanChat::showWindowSlot() {
@@ -483,22 +530,11 @@ void CyanChat::recvData() {
 		addChatLine(ui->mainText, sender, message);
 		break;
 	    case(35):
-		ui->userList->clear();
-		ui->userList->setSortingEnabled(false);
-		for(int i = 0; args.count() > 0; i++) {
-		    User user = User(args[0]);
-		    if(!user.isIgnored(ignoreList)) {
-			QListWidgetItem *item = new QListWidgetItem(ui->userList);
-			QString realName = userIPTable.getRealName(user.addr, user.name);
-			if(realName == user.name)
-				item->setText(user.name);
-			else
-				item->setText(user.name + ", (" + realName + ")");
-			item->setForeground(QBrush(user.color()));
-			item->setToolTip(user.toString());
-		    }
-		    args.pop_front();
-		}
+                userList.clear();
+                while(args.count() > 0) {
+                    userList.append(User(args.takeFirst()));
+                }
+                refreshUserListSlot();
 		break;
 	    case(11):
 		name_reg = true;

@@ -25,6 +25,7 @@ Options::Options(CyanChat *parent) : QDialog(parent), ui(new Ui::Options), cc(pa
     ui->plainFileBox->setText(cc->plainLog);
     ui->htmlFileBox->setText(cc->HTMLLog);
     ui->fontSizeBox->setValue(cc->fontSize);
+    ui->showOrigNamesBox->setChecked(cc->showOrigNames);
     // TEMP: disable nonfunctional controls
     ui->listOptionsBox->hide();
     // not sure if I'm going to make the shortcuts modifiable
@@ -65,7 +66,9 @@ void Options::updateOptions() {
     cc->plainLog = ui->plainFileBox->text();
     cc->HTMLLog = ui->htmlFileBox->text();
     cc->fontSize = ui->fontSizeBox->value();
+    cc->showOrigNames = ui->showOrigNamesBox->isChecked();
     cc->writeSettings();
+    cc->refreshUserListSlot();
     close();
 }
 

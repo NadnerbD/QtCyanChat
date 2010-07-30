@@ -35,6 +35,10 @@ QString UserIPTable::getRealName(QString IPHash, QString name) {
     return nameTable[IPHash][0];
 }
 
+QStringList UserIPTable::getAllNames(QString IPHash) {
+    return nameTable[IPHash];
+}
+
 void UserIPTable::setRealName(QString IPHash, QString name) {
     if(name != getRealName(IPHash, name)) {
         nameTable[IPHash].removeAll(name);

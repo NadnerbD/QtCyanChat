@@ -106,6 +106,7 @@ public:
     bool logClientAnnounce;
     bool logTimestamps;
     int fontSize;
+    bool showOrigNames;
 
 public slots:
     void loginSlot();
@@ -132,6 +133,9 @@ public slots:
     void setTrayVis(bool vis);
     void saveSplitterState(int, int);
     void showUserListContextMenu(QPoint);
+    void showNamesSlot();
+    void setOrigNameSlot();
+    void refreshUserListSlot();
 
 signals:
     void hideWindowSignal();
@@ -141,6 +145,7 @@ private:
     QTcpSocket* sock;
     Options* optionsDialog;
     bool name_reg;
+    QList<User> userList;
     QList<User> ignoreList;
     QString startName;
     QString lastAttemptedName;

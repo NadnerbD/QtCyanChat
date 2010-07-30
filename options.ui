@@ -128,6 +128,13 @@
         </widget>
        </item>
        <item row="6" column="0">
+        <widget class="QCheckBox" name="showOrigNamesBox">
+         <property name="text">
+          <string>Display original names</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
         <widget class="QGroupBox" name="listOptionsBox">
          <property name="title">
           <string>User list</string>
