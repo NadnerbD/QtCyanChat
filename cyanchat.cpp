@@ -136,6 +136,7 @@ void CyanChat::readSettings() {
     connectOnStartup = settings.value("ConnectOnStartup", true).toBool();
     highlightLocalName = settings.value("HighlightLocalName", false).toBool();
     alwaysShowTray = settings.value("AlwaysShowTray", true).toBool();
+    minimizeToTray = settings.value("MinimizeToTray", true).toBool();
     reformatActions = settings.value("ReformatActions", false).toBool();
     autoCreatePMTabs = settings.value("AutoCreatePMTabs", true).toBool();
     displayTimestamps = settings.value("DisplayTimestamps", false).toBool();
@@ -173,6 +174,7 @@ void CyanChat::writeSettings() {
     settings.setValue("ConnectOnStartup", connectOnStartup);
     settings.setValue("HighlightLocalName", highlightLocalName);
     settings.setValue("AlwaysShowTray", alwaysShowTray);
+    settings.setValue("MinimizeToTray", minimizeToTray);
     settings.setValue("ReformatActions", reformatActions);
     settings.setValue("AutoCreatePMTabs", autoCreatePMTabs);
     settings.setValue("DisplayTimestamps", displayTimestamps);

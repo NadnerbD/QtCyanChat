@@ -18,7 +18,7 @@
     <normaloff>:/cyanchat32.png</normaloff>:/cyanchat32.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">QLineEdit, QTextBrowser, QListView { background: black; color: white; }
+   <string notr="true">QLineEdit, QTextBrowser, QListView, QListWidgetItem { background: black; color: white; }
 QLineEdit:disabled { background: gray; color: black; }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -168,7 +168,7 @@ QLineEdit:disabled { background: gray; color: black; }</string>
      <x>0</x>
      <y>0</y>
      <width>747</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuChat">
@@ -184,7 +184,6 @@ QLineEdit:disabled { background: gray; color: black; }</string>
    </widget>
    <addaction name="menuChat"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionConnect">
    <property name="text">
     <string>Connect</string>
