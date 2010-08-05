@@ -547,6 +547,7 @@ void CyanChat::recvData() {
 		break;
 	    case(11):
 		name_reg = true;
+                reconnecting = false;
 		currentName = lastAttemptedName;
 		ui->nameBox->setText(lastAttemptedName);
 		ui->nameBox->setDisabled(true);
@@ -555,6 +556,9 @@ void CyanChat::recvData() {
 		break;
 	    case(10):
 		addChatLine(ui->mainText, User("3ChatClient"), Msg("Server rejected name", 1));
+                if(reconnecting) {
+                    QTimer::singleShot(5000, this, SLOT(loginSlot()));
+                }
 		break;
 	    case(70): // mutual ignore
 		sender.fromString(args[0]);
