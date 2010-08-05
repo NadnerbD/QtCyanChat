@@ -14,7 +14,7 @@ QString CyanChat::verString = "qt_cc " + QString(CC_VERSION) + " (NadCC) Mac OSX
 #endif
 
 
-CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), settings("cyan.com", "CyanChat"), ui(new Ui::CyanChat), optionsDialog(NULL), userIPTable("UserIPTable.log") {
+CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), reconnecting(false), settings("cyan.com", "CyanChat"), ui(new Ui::CyanChat), optionsDialog(NULL), userIPTable("UserIPTable.log") {
     ui->setupUi(this);
     // remove the dummy pm tab
     ui->tabWidget->removeTab(1);
@@ -93,10 +93,30 @@ CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), settings("cyan.com", 
     sock = new QTcpSocket(this);
     connect(sock, SIGNAL(readyRead()), this, SLOT(recvData()));
     connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(sockError()));
+    connect(sock, SIGNAL(connected()), this, SLOT(onConnect()));
     // start the ping timer
     QTimer* pingTimer = new QTimer(this);
     connect(pingTimer, SIGNAL(timeout()), this, SLOT(pingSlot()));
     pingTimer->start(30000);
+    int len = qApp->argc();
+    char** args = qApp->argv();
+    for(int i = 0; i < len; i++) {
+        if((args[i] == QString("-h"))&&(i + 1 < len)) {
+            host = args[i + 1];
+        }
+        if((args[i] == QString("-p"))&&(i + 1 < len)) {
+            port = QString(args[i + 1]).toInt();
+        }
+        if((args[i] == QString("-n"))&&(i + 1 < len)) {
+            ui->nameBox->setText(QString(args[i + 1]));
+            reconnecting = true; // using this option forces set name on connect
+        }
+        if(args[i] == QString("-b")) {
+            highlightLocalName = true;
+        }
+    }
+    // start the connection
+    netConnect();
 }
 
 // hack class to allow me to change the tab color without subclassing the tab widget. :P
@@ -209,7 +229,13 @@ void CyanChat::netConnect() {
     addChatLine(ui->mainText, User("3ChatClient"), Msg(verString, 1));
     addChatLine(ui->mainText, User("3ChatClient"), Msg("connecting to: " + host + ":" + QString::number(port), 1));
     sock->connectToHost(host, port, QIODevice::ReadWrite);
+}
+
+void CyanChat::onConnect() {
     sock->write("40|1\n");
+    if(setNameOnConnect || reconnecting) {
+        name(ui->nameBox->text());
+    }
 }
 
 void CyanChat::netDisconnect() {
@@ -365,26 +391,6 @@ void CyanChat::tabChanged(int num) {
     ((UsableTabWidget*)ui->tabWidget)->tabBar()->setTabTextColor(num, palette().color(QPalette::ButtonText));
 }
 
-void CyanChat::passCmdLineOptions(int len, char** args) {
-    for(int i = 0; i < len; i++) {
-	if((args[i] == QString("-h"))&&(i + 1 < len))
-	    host = args[i + 1];
-	if((args[i] == QString("-p"))&&(i + 1 < len))
-	    port = QString(args[i + 1]).toInt();
-	if((args[i] == QString("-n"))&&(i + 1 < len))
-	    startName = QString(args[i + 1]);
-	if(args[i] == QString("-b"))
-	    highlightLocalName = true;
-    }
-    // start the connection
-    netConnect();
-    if(startName.count() > 0) {
-	name(startName);
-    }else if(setNameOnConnect) {
-	name(defaultName);
-    }
-}
-
 void CyanChat::sendLine(QString line) {
     line += "\n";
     sock->write(line.toUtf8());
@@ -463,6 +469,7 @@ void CyanChat::chatSlot() {
 void CyanChat::sockError() {
     addChatLine(ui->mainText, User("3ChatClient"), Msg("Connection error", 1));
     netDisconnect();
+    reconnecting = true;
     QTimer::singleShot(5000, this, SLOT(netConnect()));
 }
 

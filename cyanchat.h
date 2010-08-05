@@ -61,7 +61,6 @@ public:
         kMsgTypePM, kMsgTypeChat, kMsgTypeJoin, kMsgTypeLeave
     };
 
-    void passCmdLineOptions(int len, char** args);
     void insertTextDetectLinks(QTextCursor cursor, QTextCharFormat format, QString text);
     void addChatLine(QTextBrowser* textBrowser, const User& user, const Msg& message);
     void writePlainLogLine(const User& user, const Msg& message);
@@ -77,6 +76,8 @@ public:
     static QColor msgColors[2];
 
     QString currentName;
+    // if this is set, it has the effect of setNameOnConnect, without saving as an option
+    bool reconnecting;
 
     // options
     QSettings settings;
@@ -109,6 +110,7 @@ public:
     bool showOrigNames;
 
 public slots:
+    void onConnect();
     void loginSlot();
     void renameSlot();
     void ignoreSlot();
