@@ -33,6 +33,11 @@ void PMWidget::changeEvent(QEvent *e) {
 void PMWidget::pmSendSlot() {
     QStringList lines = m_ui->pmBox->text().split("\n");
     foreach(QString line, lines) {
+        QStringList args = line.split(" ");
+        if(args.count() > 1 && args[0] == "/me") {
+            args.pop_front();
+            line = "*" + args.join(" ") + "*";
+        }
         cc->addChatLine(m_ui->pmText, CyanChat::User("0" + cc->currentName), CyanChat::Msg(line, 1));
         cc->pm(target, line);
     }
