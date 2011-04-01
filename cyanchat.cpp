@@ -572,8 +572,9 @@ void CyanChat::recvData() {
 
 void CyanChat::insertTextDetectLinks(QTextCursor cursor, QTextCharFormat format, QString text) {
     QStringList words = text.split(" ");
+    QRegExp rx("[a-zA-Z]+://[^ ]+");
     for(int i = 0; i < words.count(); i++) {
-	if(words[i].startsWith("http://")) {
+        if(rx.indexIn(words[i]) != -1) {
 	    cursor.insertHtml("<a href='" + words[i] + "'>" + words[i] + "</a>");
 	}else{
 	    cursor.insertText(words[i], format);
