@@ -572,10 +572,15 @@ void CyanChat::recvData() {
 
 void CyanChat::insertTextDetectLinks(QTextCursor cursor, QTextCharFormat format, QString text) {
     QStringList words = text.split(" ");
-    QRegExp rx("[a-zA-Z]+://[^ ]+");
+    // Qt's DesktopServices will find a valid handler for any scheme registered with the OS
+    // thus, anything of the form <scheme>://<characters> will be marked as a url
+    // valid scheme characters and reserved body characters listed in RFC 1738
+    // space is not neccesary in the second character class because of the split
+    QRegExp rx("[0-9a-zA-Z+-.]+://[^\"<>[\\]^`{}|]+$");
     for(int i = 0; i < words.count(); i++) {
-        if(rx.indexIn(words[i]) != -1) {
-	    cursor.insertHtml("<a href='" + words[i] + "'>" + words[i] + "</a>");
+        // if the match starts at 0, then the whole character block is a url
+        if(rx.indexIn(words[i]) == 0) {
+            cursor.insertHtml("<a href=\"" + words[i] + "\">" + words[i] + "</a>");
 	}else{
 	    cursor.insertText(words[i], format);
 	}
