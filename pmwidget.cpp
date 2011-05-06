@@ -9,11 +9,11 @@ PMWidget::PMWidget(CyanChat::User user, CyanChat* tcc, QWidget *parent) : QWidge
 
     pmBox = m_ui->pmBox;
 
-    m_ui->pmTitle->setText("Private chat with [" + user.name + "]");
+    // there used to be a label in this widget
+    //m_ui->pmTitle->setText("Private chat with [" + user.name + "]");
     ((QTabWidget*)parent)->addTab(this, user.name);
 
     connect(m_ui->pmBox, SIGNAL(returnPressed()), this, SLOT(pmSendSlot()));
-    connect(m_ui->closeButton, SIGNAL(clicked()), this, SLOT(closeSlot()));
 }
 
 PMWidget::~PMWidget() {

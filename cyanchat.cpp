@@ -20,7 +20,6 @@ CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), reconnecting(false), 
     ui->tabWidget->removeTab(1);
     // connect all the ui stuffs
     connect(ui->loginButton, SIGNAL(clicked()), this, SLOT(loginSlot()));
-    connect(ui->ignoreButton, SIGNAL(clicked()), this, SLOT(ignoreSlot()));
     connect(ui->nameBox, SIGNAL(returnPressed()), this, SLOT(loginSlot()));
     connect(ui->chatBox, SIGNAL(returnPressed()), this, SLOT(chatSlot()));
     connect(ui->userList, SIGNAL(activated(QModelIndex)), this, SLOT(openPmSlot()));
