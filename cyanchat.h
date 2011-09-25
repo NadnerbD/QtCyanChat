@@ -138,6 +138,7 @@ public slots:
     void showNamesSlot();
     void setOrigNameSlot();
     void refreshUserListSlot();
+    void nameCompleteSlot();
 
 signals:
     void hideWindowSignal();

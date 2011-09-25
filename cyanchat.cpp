@@ -36,6 +36,8 @@ CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), reconnecting(false), 
     connect(shortcut, SIGNAL(activated()), this, SLOT(nextTabSlot()));
     shortcut = new QShortcut(QKeySequence("Ctrl+W"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(closeCurrentTab()));
+    shortcut = new QShortcut(QKeySequence("Ctrl+Space"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(nameCompleteSlot()));
     // init vars
     name_reg = false;
     // at some point, we'll read a config file here
@@ -484,6 +486,30 @@ void CyanChat::openPmSlot() {
 void CyanChat::closeTabSlot(QWidget* tab) {
     int tabIndex = ui->tabWidget->indexOf(tab);
     ui->tabWidget->removeTab(tabIndex);
+}
+
+void CyanChat::nameCompleteSlot() {
+    QString line = ui->chatBox->text();
+    int cur = ui->chatBox->cursorPosition();
+    int fragStart = cur;
+    while(fragStart > 0) {
+        fragStart--;
+        if(line[fragStart] == ' ') {
+            fragStart++;
+            break;
+        }
+    }
+    QString nameFrag = line.mid(fragStart, cur - fragStart);
+    QList<QString> possibleNames;
+    foreach(User user, userList) {
+        if(user.name.startsWith(nameFrag)) {
+            possibleNames.append(user.name);
+        }
+    }
+    if(possibleNames.length() == 1) {
+        line.insert(cur, possibleNames[0].mid(cur - fragStart));
+        ui->chatBox->setText(line);
+    }
 }
 
 void CyanChat::recvData() {
