@@ -14,6 +14,8 @@ PMWidget::PMWidget(CyanChat::User user, CyanChat* tcc, QWidget *parent) : QWidge
     ((QTabWidget*)parent)->addTab(this, user.name);
 
     connect(m_ui->pmBox, SIGNAL(returnPressed()), this, SLOT(pmSendSlot()));
+    QShortcut* autoComplete = new QShortcut(QKeySequence("Ctrl+Space"), m_ui->pmBox);
+    connect(autoComplete, SIGNAL(activated()), tcc, SLOT(nameCompleteSlot()));
 }
 
 PMWidget::~PMWidget() {

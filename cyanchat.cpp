@@ -36,7 +36,7 @@ CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), reconnecting(false), 
     connect(shortcut, SIGNAL(activated()), this, SLOT(nextTabSlot()));
     shortcut = new QShortcut(QKeySequence("Ctrl+W"), this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(closeCurrentTab()));
-    shortcut = new QShortcut(QKeySequence("Ctrl+Space"), this);
+    shortcut = new QShortcut(QKeySequence("Ctrl+Space"), ui->chatBox);
     connect(shortcut, SIGNAL(activated()), this, SLOT(nameCompleteSlot()));
     // init vars
     name_reg = false;
@@ -489,8 +489,9 @@ void CyanChat::closeTabSlot(QWidget* tab) {
 }
 
 void CyanChat::nameCompleteSlot() {
-    QString line = ui->chatBox->text();
-    int cur = ui->chatBox->cursorPosition();
+    QLineEdit* sender = (QLineEdit*)QObject::sender()->parent();
+    QString line = sender->text();
+    int cur = sender->cursorPosition();
     int fragStart = cur;
     while(fragStart > 0) {
         fragStart--;
@@ -507,8 +508,7 @@ void CyanChat::nameCompleteSlot() {
         }
     }
     if(possibleNames.length() == 1) {
-        line.insert(cur, possibleNames[0].mid(cur - fragStart));
-        ui->chatBox->setText(line);
+        sender->insert(possibleNames[0].mid(cur - fragStart));
     }
 }
 
