@@ -12,7 +12,7 @@ CyanChat::User::User(QString str) {
     fromString(str);
 }
 
-QString CyanChat::User::fullName() {
+QString CyanChat::User::fullName() const {
     return QString().setNum(level) + name;
 }
 
@@ -28,7 +28,7 @@ void CyanChat::User::fromString(QString str) {
     level = args[0].left(1).toInt();
 }
 
-QString CyanChat::User::toString() {
+QString CyanChat::User::toString() const {
     return fullName() + "," + addr;
 }
 

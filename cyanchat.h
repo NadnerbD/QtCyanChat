@@ -40,8 +40,8 @@ public:
 	User() {}
 	User(QString str);
 	void fromString(QString str);
-	QString toString();
-	QString fullName();
+	QString toString() const;
+	QString fullName() const;
 	QColor color() const;
 	bool isIgnored(QList<User>& ignoreList);
     };
