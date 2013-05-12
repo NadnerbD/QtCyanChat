@@ -1,0 +1,7 @@
+*.o
+*.log
+moc_*
+ui_*
+qrc_resources.cpp
+Makefile
+CyanChat
