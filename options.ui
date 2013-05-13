@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>358</width>
+    <width>400</width>
     <height>325</height>
    </rect>
   </property>
@@ -376,6 +376,13 @@
         <widget class="QCheckBox" name="htmlLogBox">
          <property name="text">
           <string>Write HTML log</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" colspan="2">
+        <widget class="QCheckBox" name="logPrivateBox">
+         <property name="text">
+          <string>Include private messages</string>
          </property>
         </widget>
        </item>

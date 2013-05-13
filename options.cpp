@@ -19,6 +19,7 @@ Options::Options(CyanChat *parent) : QDialog(parent), ui(new Ui::Options), cc(pa
     ui->htmlLogBox->setChecked(cc->writeHTMLLog);
     ui->logAnnounceBox->setChecked(cc->logClientAnnounce);
     ui->logTimestampsBox->setChecked(cc->logTimestamps);
+    ui->logPrivateBox->setChecked(cc->logPrivate);
     ui->hostBox->setText(cc->host);
     ui->portBox->setText(QString::number(cc->port));
     ui->nameBox->setText(cc->defaultName);
@@ -60,6 +61,7 @@ void Options::updateOptions() {
     cc->writeHTMLLog = ui->htmlLogBox->isChecked();
     cc->logClientAnnounce = ui->logAnnounceBox->isChecked();
     cc->logTimestamps = ui->logTimestampsBox->isChecked();
+    cc->logPrivate = ui->logPrivateBox->isChecked();
     cc->host = ui->hostBox->text();
     cc->port = ui->portBox->text().toInt();
     cc->defaultName = ui->nameBox->text();

@@ -166,6 +166,7 @@ void CyanChat::readSettings() {
     writePlainLog = settings.value("WritePlainLog", false).toBool();
     logClientAnnounce = settings.value("LogClientAnnounce", false).toBool();
     logTimestamps = settings.value("LogTimestamps", true).toBool();
+    logPrivate = settings.value("LogPrivate", true).toBool();
     plainLog = settings.value("PlainLog", "CCChatLog.log").toString();
     HTMLLog = settings.value("HTMLLog", "CCChatLog.html").toString();
     fontSize = settings.value("FontSize", 0).toInt();
@@ -204,6 +205,7 @@ void CyanChat::writeSettings() {
     settings.setValue("WritePlainLog", writePlainLog);
     settings.setValue("LogClientAnnounce", logClientAnnounce);
     settings.setValue("LogTimestamps", logTimestamps);
+    settings.setValue("LogPrivate", logPrivate);
     settings.setValue("PlainLog", plainLog);
     settings.setValue("HTMLLog", HTMLLog);
     settings.setValue("FontSize", fontSize);
@@ -616,7 +618,7 @@ void CyanChat::insertTextDetectLinks(QTextCursor cursor, QTextCharFormat format,
 }
 
 void CyanChat::addChatLine(QTextBrowser* textBrowser, const User& user, const Msg& message) {
-    if(logClientAnnounce || !user.addr.isEmpty()) {
+    if((logClientAnnounce || !user.addr.isEmpty()) && (logPrivate || !(message.flag == kMsgTypePMTab || message.flag == kMsgTypePM))) {
         writeHTMLLogLine(user, message);
         writePlainLogLine(user, message);
     }

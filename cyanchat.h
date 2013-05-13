@@ -107,6 +107,7 @@ public:
     QString HTMLLog;
     bool logClientAnnounce;
     bool logTimestamps;
+    bool logPrivate;
     int fontSize;
     bool showOrigNames;
 
