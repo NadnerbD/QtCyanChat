@@ -352,7 +352,11 @@ void CyanChat::refreshUserListSlot() {
             else
                 item->setText(user.name);
             item->setForeground(QBrush(user.color()));
-            item->setToolTip(user.toString());
+            QString names;
+            foreach(QString name, userIPTable.getAllNames(user.addr)) {
+                names += "\n* " + name;
+            }
+            item->setToolTip(user.toString() + names);
         }
     }
 }
