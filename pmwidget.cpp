@@ -40,7 +40,7 @@ void PMWidget::pmSendSlot() {
             args.pop_front();
             line = "*" + args.join(" ") + "*";
         }
-        cc->addChatLine(m_ui->pmText, CyanChat::User("0" + cc->currentName), CyanChat::Msg(line, 1));
+        cc->addChatLine(m_ui->pmText, CyanChat::User("0" + cc->currentName), CyanChat::Msg(line, CyanChat::kMsgTypePMTab));
         cc->pm(target, line);
     }
     m_ui->pmBox->clear();
@@ -51,5 +51,5 @@ void PMWidget::closeSlot() {
 }
 
 void PMWidget::pmRecv(const CyanChat::User& user, const CyanChat::Msg& message) {
-    cc->addChatLine(m_ui->pmText, user, CyanChat::Msg(message.text, 1));
+    cc->addChatLine(m_ui->pmText, user, CyanChat::Msg(message.text, CyanChat::kMsgTypePMTab));
 }

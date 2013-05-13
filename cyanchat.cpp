@@ -682,7 +682,7 @@ void CyanChat::writePlainLogLine(const User& user, const Msg& message) {
             plainLogFile.write("\\\\\\\\\\");
         else if(message.flag == kMsgTypeLeave)
             plainLogFile.write("/////");
-        else if(message.flag == kMsgTypePM)
+        else if(message.flag == kMsgTypePM || message.flag == kMsgTypePMTab)
             plainLogFile.write("Private message from ");
         plainLogFile.write(QString("[" + user.name + "] " + message.text).toUtf8().data());
         if(message.flag == kMsgTypeJoin)
@@ -729,7 +729,7 @@ void CyanChat::writeHTMLLogLine(const User& user, const Msg& message) {
             HTMLLogFile.write("<span class=\"server\">\\\\\\\\\\</span>");
         else if(message.flag == kMsgTypeLeave)
             HTMLLogFile.write("<span class=\"server\">/////</span>");
-        else if(message.flag == kMsgTypePM)
+        else if(message.flag == kMsgTypePM || message.flag == kMsgTypePMTab)
             HTMLLogFile.write("<span class=\"magenta\">Private message from</span> ");
         HTMLLogFile.write(QString("<span title=\"" + user.toString() + "\" class=\"" + QString(htmlClassNames[user.level]) + "\">[" + Qt::escape(user.name) + "]</span> ").toUtf8().data());
         int msgClass = 5;

@@ -58,7 +58,7 @@ public:
     };
 
     enum {
-        kMsgTypePM, kMsgTypeChat, kMsgTypeJoin, kMsgTypeLeave
+        kMsgTypePM, kMsgTypeChat, kMsgTypeJoin, kMsgTypeLeave, kMsgTypePMTab
     };
 
     void insertTextDetectLinks(QTextCursor cursor, QTextCharFormat format, QString text);
