@@ -74,6 +74,7 @@ public:
 
     static QString verString;
     static QColor msgColors[2];
+    static QRegExp linkRegex;
 
     QString currentName;
     // if this is set, it has the effect of setNameOnConnect, without saving as an option

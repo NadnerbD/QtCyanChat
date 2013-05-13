@@ -595,16 +595,17 @@ void CyanChat::recvData() {
     }
 }
 
+// Qt's DesktopServices will find a valid handler for any scheme registered with the OS
+// thus, anything of the form <scheme>://<characters> will be marked as a url
+// valid scheme characters and reserved body characters listed in RFC 1738
+// space is not neccesary in the second character class because of the split
+QRegExp CyanChat::linkRegex("[0-9a-zA-Z+-.]+://[^\"<>[\\]^`{}|]+$");
+
 void CyanChat::insertTextDetectLinks(QTextCursor cursor, QTextCharFormat format, QString text) {
     QStringList words = text.split(" ");
-    // Qt's DesktopServices will find a valid handler for any scheme registered with the OS
-    // thus, anything of the form <scheme>://<characters> will be marked as a url
-    // valid scheme characters and reserved body characters listed in RFC 1738
-    // space is not neccesary in the second character class because of the split
-    QRegExp rx("[0-9a-zA-Z+-.]+://[^\"<>[\\]^`{}|]+$");
     for(int i = 0; i < words.count(); i++) {
         // if the match starts at 0, then the whole character block is a url
-        if(rx.indexIn(words[i]) == 0) {
+        if(linkRegex.indexIn(words[i]) == 0) {
             cursor.insertHtml("<a href=\"" + words[i] + "\">" + words[i] + "</a>");
 	}else{
 	    cursor.insertText(words[i], format);
@@ -696,7 +697,7 @@ void CyanChat::writePlainLogLine(const User& user, const Msg& message) {
 void CyanChat::writeHTMLLogLine(const User& user, const Msg& message) {
     static const char* htmlClassNames[] = {
         "normal",
-        "cyane",
+        "cyan",
         "server",
         "client",
         "guest",
@@ -719,37 +720,38 @@ void CyanChat::writeHTMLLogLine(const User& user, const Msg& message) {
                 HTMLLogFile.seek(size);
             }
         }
+	HTMLLogFile.write("<p>");
         if(logTimestamps) {
             QDateTime now = QDateTime::currentDateTime();
-            HTMLLogFile.write(QString("<a class='msg'>" + now.toString(timestampFormat) + "</a> ").toUtf8().data());
+            HTMLLogFile.write(QString("<span class=\"timestamp\" title=\"" + QString().setNum(now.toTime_t()) + "\">" + now.toString(timestampFormat) + "</span> ").toUtf8().data());
         }
         if(message.flag == kMsgTypeJoin)
-            HTMLLogFile.write("<a class='server'>\\\\\\\\\\</a>");
+            HTMLLogFile.write("<span class=\"server\">\\\\\\\\\\</span>");
         else if(message.flag == kMsgTypeLeave)
-            HTMLLogFile.write("<a class='server'>/////</a>");
+            HTMLLogFile.write("<span class=\"server\">/////</span>");
         else if(message.flag == kMsgTypePM)
-            HTMLLogFile.write("<a class='pretext'>Private message from</a> ");
-        HTMLLogFile.write(QString("<a class=" + QString(htmlClassNames[user.level]) + ">[" + Qt::escape(user.name) + "]</a> ").toUtf8().data());
+            HTMLLogFile.write("<span class=\"magenta\">Private message from</span> ");
+        HTMLLogFile.write(QString("<span title=\"" + user.toString() + "\" class=\"" + QString(htmlClassNames[user.level]) + "\">[" + Qt::escape(user.name) + "]</span> ").toUtf8().data());
         int msgClass = 5;
         if(message.text.startsWith("*") && message.text.endsWith("*"))
             msgClass = 6;
-        HTMLLogFile.write(QString("<a class=" + QString(htmlClassNames[msgClass]) + ">").toUtf8().data());
+        HTMLLogFile.write(QString("<span class=\"" + QString(htmlClassNames[msgClass]) + "\">").toUtf8().data());
         QStringList words = message.text.split(" ");
         for(int i = 0; i < words.count(); i++) {
-            if(words[i].startsWith("http://")) {
-                HTMLLogFile.write(QString("<a href='" + words[i] + "'>" + Qt::escape(words[i]) + "</a>").toUtf8().data());
+            if(linkRegex.indexIn(words[i]) == 0) {
+                HTMLLogFile.write(QString("<a href=\"" + words[i] + "\">" + Qt::escape(words[i]) + "</a>").toUtf8().data());
             }else{
                 HTMLLogFile.write(Qt::escape(words[i]).toUtf8().data());
             }
             if(words.count() - 1 != i)
                 HTMLLogFile.write(" ");
         }
-        HTMLLogFile.write("</a>");
+        HTMLLogFile.write("</span>");
         if(message.flag == kMsgTypeJoin)
-            HTMLLogFile.write("<a class='server'>/////</a>");
+            HTMLLogFile.write("<span class=\"server\">/////</span>");
         if(message.flag == kMsgTypeLeave)
-            HTMLLogFile.write("<a class='server'>\\\\\\\\\\</a>");
-        HTMLLogFile.write("<br />\n");
+            HTMLLogFile.write("<span class=\"server\">\\\\\\\\\\</span>");
+        HTMLLogFile.write("</p>\n");
         HTMLLogFile.flush();
     }
 }
