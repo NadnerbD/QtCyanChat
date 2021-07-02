@@ -16,7 +16,7 @@ HEADERS += cyanchat.h \
 FORMS += cyanchat.ui \
     options.ui \
     pmwidget.ui
-QT += network
+QT += gui widgets network
 RC_FILE += cyanchat.rc
 RESOURCES += resources.qrc
 OTHER_FILES += cyanchat.rc

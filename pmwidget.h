@@ -3,7 +3,7 @@
 
 #include "cyanchat.h"
 #include <QLineEdit>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace Ui {
     class PMWidget;

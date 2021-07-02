@@ -1,9 +1,9 @@
 #ifndef CYANCHAT_H
 #define CYANCHAT_H
 
-#define CC_VERSION "v1.9.5"
+#define CC_VERSION "v1.9.6"
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QTextBrowser>
 #include <QModelIndex>

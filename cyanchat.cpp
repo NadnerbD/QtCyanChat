@@ -3,14 +3,16 @@
 #include "options.h"
 #include "ui_cyanchat.h"
 
-#ifdef Q_WS_WIN
+#include <QCommandLineParser>
+
+#ifdef Q_OS_WIN
 QString CyanChat::verString = "qt_cc " + QString(CC_VERSION) + " (NadCC) Windows build";
 #endif
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
 QString CyanChat::verString = "qt_cc " + QString(CC_VERSION) + " (NadCC) Linux build";
 #endif
-#ifdef Q_WS_MACX
-QString CyanChat::verString = "qt_cc " + QString(CC_VERSION) + " (NadCC) Mac OSX build";
+#ifdef Q_OS_MACOS
+QString CyanChat::verString = "qt_cc " + QString(CC_VERSION) + " (NadCC) Mac OS build";
 #endif
 
 
@@ -99,23 +101,31 @@ CyanChat::CyanChat(QWidget *parent) : QMainWindow(parent), reconnecting(false), 
     QTimer* pingTimer = new QTimer(this);
     connect(pingTimer, SIGNAL(timeout()), this, SLOT(pingSlot()));
     pingTimer->start(30000);
-    int len = qApp->argc();
-    char** args = qApp->argv();
-    for(int i = 0; i < len; i++) {
-        if((args[i] == QString("-h"))&&(i + 1 < len)) {
-            host = args[i + 1];
-        }
-        if((args[i] == QString("-p"))&&(i + 1 < len)) {
-            port = QString(args[i + 1]).toInt();
-        }
-        if((args[i] == QString("-n"))&&(i + 1 < len)) {
-            ui->nameBox->setText(QString(args[i + 1]));
-            reconnecting = true; // using this option forces set name on connect
-        }
-        if(args[i] == QString("-b")) {
-            highlightLocalName = true;
-        }
+    // process the command line arguments
+    QStringList args = QApplication::arguments();
+    QCommandLineParser parser;
+    QCommandLineOption hostOption({{"h", "host"}, "Specify a server to connect to", "host"});
+    QCommandLineOption portOption({{"p", "port"}, "Specify a port to connect on", "port"});
+    QCommandLineOption nameOption({{"n", "name"}, "Specify a name to use upon connecting", "name"});
+    QCommandLineOption boldOption({{"b", "bold"}, "Highlight your username in chat"});
+    parser.addOption(hostOption);
+    parser.addOption(nameOption);
+    parser.addOption(portOption);
+    parser.addOption(boldOption);
+    parser.process(QCoreApplication::arguments());
+
+    // options override stored settings if provided, but defaults have already been set
+    if(parser.isSet(hostOption))
+        host = parser.value(hostOption);
+    if(parser.isSet(portOption))
+        port = parser.value(portOption).toInt();
+    if(parser.isSet(nameOption)) {
+        ui->nameBox->setText(parser.value(nameOption));
+        reconnecting = true; // using this option forces set name on connect
     }
+    if(parser.isSet(boldOption))
+        highlightLocalName = true;
+
     // start the connection
     netConnect();
 }
@@ -737,7 +747,7 @@ void CyanChat::writeHTMLLogLine(const User& user, const Msg& message) {
             HTMLLogFile.write("<span class=\"server\">/////</span>");
         else if(message.flag == kMsgTypePM || message.flag == kMsgTypePMTab)
             HTMLLogFile.write("<span class=\"magenta\">Private message from</span> ");
-        HTMLLogFile.write(QString("<span title=\"" + user.toString() + "\" class=\"" + QString(htmlClassNames[user.level]) + "\">[" + Qt::escape(user.name) + "]</span> ").toUtf8().data());
+        HTMLLogFile.write(QString("<span title=\"" + user.toString() + "\" class=\"" + QString(htmlClassNames[user.level]) + "\">[" + user.name.toHtmlEscaped() + "]</span> ").toUtf8().data());
         int msgClass = 5;
         if(message.text.startsWith("*") && message.text.endsWith("*"))
             msgClass = 6;
@@ -745,9 +755,9 @@ void CyanChat::writeHTMLLogLine(const User& user, const Msg& message) {
         QStringList words = message.text.split(" ");
         for(int i = 0; i < words.count(); i++) {
             if(linkRegex.indexIn(words[i]) == 0) {
-                HTMLLogFile.write(QString("<a href=\"" + words[i] + "\">" + Qt::escape(words[i]) + "</a>").toUtf8().data());
+                HTMLLogFile.write(QString("<a href=\"" + words[i] + "\">" + words[i].toHtmlEscaped() + "</a>").toUtf8().data());
             }else{
-                HTMLLogFile.write(Qt::escape(words[i]).toUtf8().data());
+                HTMLLogFile.write(words[i].toHtmlEscaped().toUtf8().data());
             }
             if(words.count() - 1 != i)
                 HTMLLogFile.write(" ");
